@@ -32,7 +32,6 @@ def isDrawing():
     TIP = hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP]
     x, y = round(TIP.x * screenWidth), round(TIP.y * screenHeight)
 
-
     #v1 is the vector from the index finger DIP to PIP
     v1 = np.array([DIPx - PIPx, DIPy - PIPy, DIPz - PIPz])
 
@@ -52,7 +51,6 @@ def isDrawing():
         return True, x, y
     return False, x, y
 
-
 def draw() -> None:
     global drawing, lastX, lastY
     event, x, y = isDrawing()
@@ -65,7 +63,8 @@ def draw() -> None:
         drawing = True
         lastX, lastY = x, y
     elif event and drawing:
-        if lastX != -1 and lastY != -1:            
+        if lastX != -1 and lastY != -1:        
+            #Draw
             cv2.line(canvas, (lastX, lastY), (x, y), (0, 255, 0), 2)
         lastX, lastY = x, y
     elif not event:
@@ -89,12 +88,12 @@ def clear():
     if diff < 0.04 and diff > -0.04:
         canvas[:] = 0
 
-
+#Screen setup
 canvas = np.zeros((screenHeight, screenWidth, 3), np.uint8)
 cv2.namedWindow("Screen Draw", cv2.WINDOW_NORMAL)
 cv2.resizeWindow("Screen Draw", screenWidth, screenHeight)
 
-
+#Main Loop
 while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
@@ -103,22 +102,24 @@ while cap.isOpened():
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
     results = hands.process(rgb_frame)
-    
+
+    #Get each landmark
     if results.multi_hand_landmarks:
         for hand_landmarks in results.multi_hand_landmarks:
             mp_draw.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
             draw()
             clear()
+
+            #Display each landmark
             for id, landmark in enumerate(hand_landmarks.landmark):
                 cx, cy = int(landmark.x * screenWidth), int(landmark.y * screenHeight) #Get x, y for each landmark
-
                 cv2.circle(frame, (cx, cy), 5, (0, 255, 0), -1)
 
-        
-
+    #Display screen
     cv2.imshow("Hand Tracking", frame)
     cv2.imshow("Screen Draw", canvas)
 
+    #Quit
     if cv2.waitKey(1) and 0xFF == ord("q"):
         break
 
