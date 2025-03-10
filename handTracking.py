@@ -18,9 +18,6 @@ screenHeight, screenWidth, _ = frame.shape
 drawing = False
 lastX, lastY = -1, -1
 
-#For reflection
-midpoint = screenWidth/2
-
 def isDrawing():
     #Get coordinates for relavent points
     DIP = hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_DIP]
@@ -59,6 +56,10 @@ def isDrawing():
 def draw() -> None:
     global drawing, lastX, lastY
     event, x, y = isDrawing()
+
+    #Reflect
+    x = screenWidth - x
+
     #Check States
     if event and not drawing:
         drawing = True
